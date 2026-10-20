@@ -1,0 +1,85 @@
+const Pelicula = require('../models/Pelicula');
+
+// GET /api/peliculas
+const obtenerPeliculas = async (req, res) => {
+    try {
+        const peliculas = await Pelicula.find();
+
+        res.status(200).json({ ok: true, data: peliculas });
+    }
+
+    catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener las películas' })
+    };
+}
+
+// GET /api/peliculas/:id
+const obtenerPeliculaPorId = async (req, res) => {
+    try {
+        const pelicula = await Pelicula.findById(req.params.id);
+        if (!pelicula) {
+            return res.status(404).json({ ok: false, mensaje: 'Película no encontrada' })
+        }
+
+        res.status(200).json({ ok: true, data: pelicula });
+    }
+
+    catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener la película' })
+    }
+};
+
+// POST /api/peliculas
+const crearPelicula = async (req, res) => {
+    try {
+        const nuevaPelicula = new Pelicula(req.body);
+
+        const peliculaGuardada = await nuevaPelicula.save();
+
+        res.status(201).json({ ok: true, data: peliculaGuardada });
+    } catch (error) {
+
+        res.status(400).json({ ok: false, mensaje: error.message });
+    }
+};
+
+
+// PUT /api/peliculas/:id
+const actualizarPelicula = async (req, res) => {
+    try {
+        const peliculaActualizada = await Pelicula.findByIdAndUpdate(req.params.id, req.body, 
+            { new: true, runValidators: true });
+
+        if (!peliculaActualizada) {
+            return res.status(404).json({ ok: false, mensaje: 'Película no encontrada' })
+        }
+
+        res.status(200).json({ ok: true, data: peliculaActualizada });
+    } catch (error) {
+        res.status(400).json({ ok: false, mensaje: error.message });
+    }
+};
+
+// DELETE /api/peliculas/:id
+const eliminarPelicula = async (req, res) => {
+    try {
+        const peliculaEliminada = await Pelicula.findByIdAndDelete(req.params.id);
+
+        if (!peliculaEliminada) {
+            return res.status(404).json({ ok: false, mensaje: 'Película no encontrada' })
+        }
+
+        res.status(200).json({ ok: true, data: peliculaEliminada });
+    } catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al eliminar la película' })
+    };
+}
+
+
+module.exports = {
+    obtenerPeliculas,
+    obtenerPeliculaPorId,
+    crearPelicula,
+    actualizarPelicula,
+    eliminarPelicula
+}
